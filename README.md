@@ -1,168 +1,139 @@
+# Smart AI Playlist
 
-Smart AI Playlist - README
+## Overview
+Smart AI Playlist is a dynamic playlist generator that personalizes Spotify playlists based on your current mood or local weather conditions.
 
-Overview
+The app integrates with:
+- Spotify API — for accessing user playlists and music data  
+- Weather API (Weather.gov) — for real-time weather data  
+- Hugging Face API — for AI-generated playlist names and descriptions  
 
-This project provides a **Smart AI Playlist** that generates dynamic playlists based on user mood or weather conditions. It integrates with the **Spotify API** to retrieve user playlists and also uses the **Weather API** to adjust recommendations based on location-specific weather data.
+The backend automatically refreshes access tokens so users stay logged in without interruptions.
 
 ---
 
-Table of Contents
-
+## Table of Contents
 - [Technologies Used](#technologies-used)
 - [Setup Instructions](#setup-instructions)
+- [Environment Variables](#environment-variables)
+- [Running the App](#running-the-app)
 - [API Endpoints](#api-endpoints)
-- [Code Structure](#code-structure)
+- [Project Structure](#project-structure)
+- [Notes](#notes)
 
 ---
 
-Technologies Used
-
-- **Node.js**: JavaScript runtime used for the backend.
-- **Express.js**: Web framework for Node.js, used to create API routes.
-- **Axios**: HTTP client to make requests to external APIs (Spotify, Weather).
-- **Node-Cron**: Used for scheduling tasks like token refreshing.
-- **React.js**: Frontend JavaScript framework for building interactive UIs.
-- **Spotify API**: Used for interacting with Spotify to get user playlists and manage music data.
-- **Weather API (Weather.gov)**: Used to get real-time weather data to adjust playlist recommendations.
-- **dotenv**: To securely store environment variables like API keys.
+## Technologies Used
+- Node.js — Backend runtime
+- Express.js — API routing
+- Axios — API requests
+- Node-Cron — Automated background tasks
+- React.js — Frontend (Optional)
+- Spotify API — Music data + user playlists
+- Weather API (Weather.gov) — Weather-based playlist logic
+- Hugging Face API — AI-generated playlist names/descriptions
+- dotenv — Environment variable management
 
 ---
 
 ## Setup Instructions
 
-1. Clone the Repository
-
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/your-username/smart-ai-playlist.git
 cd smart-ai-playlist
 ```
 
-2. Install Dependencies
+---
 
-- Install backend dependencies:
+### 2. Install Dependencies
 
+#### Backend:
 ```bash
 npm install
 ```
 
-- Install frontend dependencies (in the frontend folder, if applicable):
-
+#### Frontend (if applicable):
 ```bash
 cd frontend
 npm install
 ```
 
-3. Create a `.env` File
+---
 
-Create a `.env` file in the root of the project and add your Spotify API credentials:
+## Environment Variables
 
-```plaintext
+Create a `.env` file in the root directory and add:
+
+```env
 SPOTIFY_CLIENT_ID=your-spotify-client-id
 SPOTIFY_CLIENT_SECRET=your-spotify-client-secret
 SPOTIFY_REDIRECT_URI=http://localhost:5001/callback
+HUGGINGFACE_API_TOKEN=your-huggingface-api-token
 ```
 
-4. Run the Backend Server
+---
 
-Start the backend server:
+## Running the App
 
+### Start Backend Server
 ```bash
 npm start
 ```
+> Runs on: `http://localhost:5001`
 
-This will start the server on `http://localhost:5001`. The server handles routes for Spotify authentication, playlist retrieval, and weather-based playlist generation.
+---
 
-### 5. Run the Frontend Server (if applicable)
-
-If you have a frontend React application, navigate to the `frontend` directory and start the React development server:
-
+### Start Frontend (Optional)
 ```bash
 cd frontend
 npm start
 ```
-
-The frontend should now be running on `http://localhost:3000`.
-
----
-
-API Endpoints
-
- `/login`
-- **Method**: `GET`
-- **Description**: Initiates the login process for Spotify authentication.
-- **Example**: Redirects to Spotify's login page.
-
-`/callback`
-- **Method**: `GET`
-- **Description**: Handles the callback from Spotify after successful login. Exchanges the authorization code for an access token and a refresh token.
-- **Query Parameter**: `code` (Authorization code returned from Spotify).
-- **Example**: `/callback?code=authCodeFromSpotify`
-
-`/playlists`
-- **Method**: `GET`
-- **Description**: Fetches the user's Spotify playlists after successful authentication.
-- **Headers**: `Authorization: Bearer <access_token>`
-- **Example Response**:
-  ```json
-  {
-    "items": [
-      {
-        "name": "My Playlist",
-        "id": "playlist-id",
-        "tracks": {
-          "total": 50
-        }
-      }
-    ]
-  }
-  ```
-
- `/weather`
-- **Method**: `GET`
-- **Description**: Fetches the weather data for a given latitude and longitude.
-- **Query Parameters**: `lat`, `lon` (Latitude and Longitude).
-- **Example**: `/weather?lat=37.7749&lon=-122.4194`
-
- `/refresh-token`
-- **Method**: `POST`
-- **Description**: Refreshes the Spotify access token using the stored refresh token.
-- **Example Response**:
-  ```json
-  {
-    "access_token": "new-access-token"
-  }
-  ```
+> Runs on: `http://localhost:3000`
 
 ---
 
-Code Structure
+## API Endpoints
 
-Backend (Node.js + Express)
-
-- `server.js`: Main server file that sets up routes for authentication, playlists, and weather API interaction.
-- `auth.js`: Handles Spotify authentication logic.
-- `weather.js`: Interacts with the Weather API to retrieve weather data.
-- `cron.js`: Handles the automatic refresh of the Spotify access token using `node-cron`.
-
-Frontend (React)
-
-- `src/App.js`: The main React component that ties together the UI for playlist generation and interaction.
-- `src/components/Playlist.js`: Component to display user playlists.
-- `src/components/WeatherInput.js`: Component to take user input for location and weather-based playlist generation.
+| Method | Endpoint        | Description                                               |
+|--------|-----------------|-----------------------------------------------------------|
+| GET    | `/`             | Test route to verify server is running                   |
+| GET    | `/login`        | Redirects user to Spotify login                          |
+| GET    | `/callback`     | Handles Spotify redirect after login                     |
+| GET    | `/refresh-token`| Refreshes Spotify access token manually                  |
+| GET    | `/playlists`    | Retrieves user playlists                                 |
+| GET    | `/generate`     | Generates a new playlist based on mood/weather           |
 
 ---
 
-Running the Tests
+## Project Structure
 
-For backend, you can run tests using Jest or Mocha (whichever you're using). Install the testing libraries:
-
-```bash
-npm install --save-dev jest mocha
+smart-ai-playlist/
+│
+├── frontend/                 # React Frontend (Optional)
+│
+├── routes/                   # Express Routes
+│   ├── auth.js              # Spotify Authentication Routes
+│   ├── playlist.js         # Playlist Generation Routes
+│
+├── utils/                    # Helper Functions
+│   ├── spotify.js          # Spotify API Requests
+│   ├── weather.js          # Weather API Requests
+│   ├── huggingface.js      # Hugging Face API Requests
+│
+├── .env                      # Environment Variables
+├── server.js                 # Main Backend Entry Point
+├── package.json
+└── README.md
 ```
 
-Then, run your tests:
+---
 
-```bash
-npm test
-```
+## Notes
+- Spotify Client Credentials can be created at: https://developer.spotify.com/dashboard  
+- Hugging Face API Token available at: https://huggingface.co/settings/tokens  
+- Weather API used: https://api.weather.gov  
+
+---
+
+
