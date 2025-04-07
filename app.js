@@ -113,6 +113,43 @@ app.post("/detect-emotion", async (req, res) => {
   res.json(result);
 });
 
+// AI Mood Analysis
+async function analyzeMood(text) {
+  const response = await axios.post(
+    "https://api-inference.huggingface.co/models/distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+    { inputs: text },
+    { headers: { Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}` } }
+  );
+  return response.data;
+}
+
+// Generate Playlist
+app.get("/playlist", async (req, res) => {
+  const mood = req.query.mood;
+
+  if (!mood) {
+    return res.status(400).json({ error: "Missing mood parameter" });
+  }
+
+  try {
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/tiiuae/Falcon3-7B-Base",
+      { inputs: `Generate a Spotify playlist for a ${mood} mood.` },
+      { headers: { Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}` } }
+    );
+
+    const playlist = response.data[0]?.generated_text || "No playlist generated.";
+    res.json({ mood, playlist });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate playlist" });
+  }
+});
+
+// Health check route
+app.get("/", (req, res) => {
+  res.send("AI Playlist API & Weather API are running!");
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
